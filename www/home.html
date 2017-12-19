@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="msapplication-tap-highlight" content="no" />
+<meta name="viewport"
+	content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+<!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+<meta http-equiv="Content-Security-Policy" content="default-src * gap: file:; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src * 'unsafe-inline' 'unsafe-eval'">
+
+<link rel="stylesheet" href="css/jquery.mobile-1.4.5.css">
+<link rel="stylesheet" href="css/jquery.mobile.icons.min.css">
+<link rel="stylesheet" href="css/maderatto.css">
+
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.mobile-1.4.5.min.js"></script>
+<script src="js/jquery.mask.js"></script>
+<script src="js/index.js"></script>
+<script src="js/controller.js"></script>
+<script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+<script>
+    jQuery(function() {
+    	$('#menu-principal').enhanceWithin().panel();
+    });
+    </script>
+<title>Maderatto</title>
+</head>
+<body  onload="atualizaMenu();pesquisaProjetos();">
+	<div class="app">
+		
+		<!-- ********** Header *************** -->
+			<div data-role="header" data-theme="a" data-position="fixed" class="header-menu" data-tap-toggle="false">
+				<a href="#menu-principal" data-icon="bars" data-iconpos="notext">Menu</a>
+				<div class="info-top">
+					<p><span class="usuarioLogado"></span><br />
+					<span class="horasTrabalhadas"></span></p>
+				</div>
+			</div>
+		<!-- ********************/header ******************************* -->
+		
+		<!-- ******************* Pagina inicial Lista Projetos ***************************** -->
+		<div data-role="page" id="page-inicial">
+			<div role="main" class="ui-content">
+				<div class="inicial">
+					<ul data-role="listview" data-inset="true" id="lista-projetos">
+					
+					</ul>
+				</div>
+			</div>
+			<div id="barra-footer"  data-role="footer" data-theme="a" data-position="fixed" data-tap-toggle="false">
+				    <a href="#" class="ui-btn ui-corner-all ui-btn-inline ui-mini footer-button-left ui-btn-icon-left ui-icon-power" onclick="sair();">Sair</a>
+			</div>
+		</div>
+		<!-- ************ fim da pagina inicial *********** -->
+		
+		<!-- Pagina contendo itens do projeto ************** -->
+		<div data-role="page" id="page-itens">
+			<div role="main" class="ui-content">
+				<div class="inicial">
+					<div class="ui-corner-all custom-corners">
+						<div class="ui-bar ui-bar-a">
+							<h3>Projeto</h3>
+						</div>
+						<div class="ui-body ui-body-a" id="info-projeto">
+							
+						</div>
+					</div>
+					<div class="ui-grid-a ui-responsive">
+						<figure class="gif-load" style="display: none;">
+							<img src="img/images/giphy.gif" />
+						</figure>
+						<br />
+						<ul id="itens-projeto" data-role="listview" data-inset="true" data-split-icon="clock" data-theme="a" data-split-theme="b">
+							
+						</ul>
+					</div>
+				</div>
+
+				<div data-role="popup" id="purchase" data-theme="a" data-history = "false"
+					class="ui-corner-all">
+						<div style="padding: 10px 20px;">
+							<h3>Informe as horas trabalhadas neste item</h3>
+							<input type="hidden" name="codigo_projeto" value="" id="codigo_projeto" />
+							<input type="hidden" name="codigo" value="" id="codigo_hora_projeto" />
+							<label for="hora_inicial">Hora inicial:</label>
+							<input type="time" required="required" name="hora_inicial" id="hora_inicial" value="" placeholder="00:00" data-theme="a">
+							
+							<label for="hora_inicial">Hora final:</label>
+							<input type="time" required="required" name="hora_final" id="hora_final" value="" placeholder="00:00" data-theme="a">
+							
+							<!-- <label for="textarea">Observações:</label>
+							<textarea cols="40" rows="8" name="observacoes" id="observacoes"></textarea> -->
+							
+							<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="inicializarModal()">Cancelar</a>
+							<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="atualizarHora()">Salvar</a>
+						</div>
+				</div>
+			</div>
+		<div id="barra-footer"  data-role="footer" data-theme="a" data-position="fixed" data-tap-toggle="false">
+			<a id="btn-voltar" href="#"	class="ui-btn ui-corner-all ui-btn-inline ui-mini footer-button-left ui-btn-icon-left ui-icon-arrow-l" onclick="cancelarApontamento();">Voltar</a>
+		</div>
+	</div>
+	<!-- ************ fim da pagina de itens ******* -->
+	
+	<!-- *********************MENU ***************** -->
+			<div data-role="panel" id="menu-principal" data-position="left" data-display="reveal" data-theme="a">
+				<div class="ui-panel-inner">
+					<ul data-role="listview" class="ui-listview-v2saude">
+						<li data-icon="back" data-theme="b"><a href="#" data-rel="close">Fechar</a></li>
+						<li data-icon="home"><a href="index.html" data-ajax="false">Home</a></li>
+						<li data-icon="power"><a href="#" onclick="sair();">Sair</a></li>
+					</ul>
+				</div>
+			</div>
+	<!-- ************* FIM MENU ************** -->
+	</div>
+	<script type="text/javascript">app.initialize();</script>
+</body>
+</html>
