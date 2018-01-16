@@ -1,4 +1,5 @@
-var defaultBaseUrl = "http://app.maderatto.com.br"; 
+var defaultBaseUrl = "http://app.maderatto.com.br";
+
 
 function onDeviceReady() {
     if (window.cordova.logger) {
@@ -43,7 +44,7 @@ function loginApp() {
 	$('.gif-load').css('display', 'block');
 	$('#form-login').css('display', 'none');
 	var matriculaUsuario = $('#matricula').val();
-	
+	alert(localStorage.getItem("serviceUrl"));
 	$.ajax({
 		type : "POST",
 		dataType : "json",
