@@ -77,7 +77,7 @@ function loginApp() {
 			$('#form-login').css('display', 'block');
 			$('#matricula').val("");
 			var title ="Ops...";
-			var message = "Matrícula inválida";
+			var message = "Falha ao comunicar com o servidor: " + result;
 			var button ="OK";
 			showAlert(title, message, button);
 		}

@@ -36,6 +36,33 @@
         },
         "cordova-plugin-vibration": {
             "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-contacts": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-device-motion": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-device-orientation": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-document-viewer": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-file-transfer": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-media": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.maderattoapp"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.maderattoapp"
         }
     },
     "dependent_plugins": {
