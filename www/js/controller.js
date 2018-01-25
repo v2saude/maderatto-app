@@ -87,6 +87,7 @@ function totalHorasTrabalhadas(){
 		url : window.localStorage.getItem("serviceUrl") + "/projeto/horastrabalhadashj",
 		data : {
 			matricula : matricula,
+			senha : senha,
 		},
 		crossDomain : true,
 		success : function(result ) {
@@ -114,6 +115,7 @@ function pesquisaProjetos(){
 		url : window.localStorage.getItem("serviceUrl") + "/projeto/pesquisa",
 		data : {
 			matricula : matricula,
+			senha : senha,
 		},
 		crossDomain : true,
 		success : function(result ) {
@@ -154,6 +156,7 @@ function carregaItensProjeto(codigo){
 		url : window.localStorage.getItem("serviceUrl") + "/projeto/pesquisa/itens",
 		data : {
 			matricula : matricula,
+			senha :senha,
 			codigo : codigo,
 		},
 		crossDomain : true,
@@ -297,6 +300,7 @@ function salvarApontamento(apontamento, codigoProjeto){
 		url : window.localStorage.getItem("serviceUrl") + "/projeto/salvar/apontamento",
 		data : {
 			matricula,
+			senha,
 			id,
 			horaInicial,
 			horaFinal,

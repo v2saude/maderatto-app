@@ -44,12 +44,14 @@ function loginApp() {
 	$('.gif-load').css('display', 'block');
 	$('#form-login').css('display', 'none');
 	var matriculaUsuario = $('#matricula').val();
+	var senha = $('#senha').val();
 	$.ajax({
 		type : "POST",
 		dataType : "json",
 		url : window.localStorage.getItem("serviceUrl") + "/login",
 		data : {
 			matricula : matriculaUsuario,
+			senha: senha,
 		},
 		crossDomain : true,
 		success : function(result) {
@@ -59,7 +61,7 @@ function loginApp() {
 			    empresa = result.info['empresa'];
 			    roles = result.info['roles'];
 			    logado = true;
-			    saveData(nome, matricula, empresa, logado, roles);
+			    saveData(nome, matricula, senha, empresa, logado, roles);
 			    $('#usuarioLogado').text(nome);
 			   window.location.href = "home.html";
 			} else {
@@ -75,17 +77,19 @@ function loginApp() {
 			$('.gif-load').css('display', 'none');
 			$('#form-login').css('display', 'block');
 			$('#matricula').val("");
+			$('#senha').val("");
 			var title ="Ops...";
-			var message = "Falha ao comunicar com o servidor: " + result;
+			var message = "Falha ao comunicar com o servidor: " + result.responseJSON['mensagem'];
 			var button ="OK";
 			showAlert(title, message, button);
 		}
 	});
 }
 
-function saveData(nome, matricula, empresa, logado, roles) {
+function saveData(nome, matricula, senha, empresa, logado, roles) {
 	window.localStorage.setItem("nome", nome);
 	window.localStorage.setItem("matricula", matricula);
+	window.localStorage.setItem("senha", senha);
 	window.localStorage.setItem("empresa", empresa);
 	window.localStorage.setItem("logado", logado);
 	window.localStorage.setItem("roles", roles);
