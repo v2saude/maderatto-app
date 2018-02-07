@@ -42,16 +42,75 @@
 		
 		<!-- ******************* Pagina inicial Lista Projetos ***************************** -->
 		<div data-role="page" id="page-inicial">
-			<div role="main" class="ui-content">
-				<div class="inicial">
-					<ul data-role="listview" data-inset="true" id="lista-projetos">
-					
+			<div data-role="tabs">
+				<div data-role="navbar">
+					<ul>
+						<li><a href="#projetos">Projetos</a></li>
+						<li><a href="#lotes" onclick="pesquisaLotesProducao()">Lotes</a></li>
 					</ul>
 				</div>
+				
+				<div id="projetos" class="ui-body-d ui-content">
+					<div class="inicial">
+						<ul data-role="listview" data-inset="true" id="lista-projetos">
+					
+						</ul>
+					</div>
+				</div>
+				
+				<div id="lotes" class="ui-body-d ui-content">
+					<div class="inicial">
+						<figure class="gif-load" style="display: none;">
+							<img src="img/images/giphy.gif" />
+						</figure>
+						<br />
+						<ul data-role="listview" data-inset="true" id="lista-lotes">
+					
+						</ul>
+					</div>
+				</div>
 			</div>
+				
 			<div id="barra-footer"  data-role="footer" data-theme="a" data-position="fixed" data-tap-toggle="false">
 				    <a href="#" class="ui-btn ui-corner-all ui-btn-inline ui-mini footer-button-left ui-btn-icon-left ui-icon-power" onclick="sair();">Sair</a>
 			</div>
+			<div data-role="popup" id="purchase-lote" data-theme="a" data-history = "false"
+						class="ui-corner-all" style="width: 100%;">
+							<div data-role="header" data-theme="a">
+   								 <p style="text-align: center;">Horas trabalhadas</p>
+							</div>
+							<div role="main" class="ui-content">
+								<h3 id="descricao-lote"></h3>
+							<form action="#" id="form-modal-lote">
+								<input type="hidden" name="codigo" value="" id="codigo_lote" />
+								    <label for="select-operacao">Operação</label>
+									<select name="select-operacao" id="operacao" required="required">
+										<option value="" selected="selected">Escolha</option>
+										<option value="CORTE">Corte</option>
+										<option value="LAMINACAO">Laminação</option>
+										<option value="FURACAO">Furação</option>
+										<option value="PRE_MONTAGEM">Pré montagem</option>
+										<option value="MONTAGEM">Montagem</option>
+										<option value="PINTURA">Pintura</option>
+										<option value="RETRABALHO">retrabalho</option>
+									</select>
+								<label for="hora_inicial">Hora inicial:</label>
+								<input type="time" required="required" name="hora_inicial" id="hora_inicial" value="" placeholder="00:00" data-theme="a">
+								
+								<label for="hora_inicial">Hora final:</label>
+								<input type="time" required="required" name="hora_final" id="hora_final" value="" placeholder="00:00" data-theme="a">
+								
+								<label for="finalizado">Finalizado?</label>
+								<select name="finalizado" id="finalizado" data-role="slider" data-mini="true">
+									<option value="false">Não</option>
+									<option value="true">Sim</option>
+								</select>
+								<br />
+								<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="inicializarModalLote()">Cancelar</a>
+								<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="atualizarHoraLote()">Salvar</a>
+							</form>
+							</div>
+					</div>
 		</div>
 		<!-- ************ fim da pagina inicial *********** -->
 		
@@ -76,26 +135,37 @@
 							
 						</ul>
 					</div>
-				</div>
 
-				<div data-role="popup" id="purchase" data-theme="a" data-history = "false"
-					class="ui-corner-all">
-						<div style="padding: 10px 20px;">
-							<h3>Informe as horas trabalhadas neste item</h3>
-							<input type="hidden" name="codigo_projeto" value="" id="codigo_projeto" />
-							<input type="hidden" name="codigo" value="" id="codigo_hora_projeto" />
-							<label for="hora_inicial">Hora inicial:</label>
-							<input type="time" required="required" name="hora_inicial" id="hora_inicial" value="" placeholder="00:00" data-theme="a">
-							
-							<label for="hora_inicial">Hora final:</label>
-							<input type="time" required="required" name="hora_final" id="hora_final" value="" placeholder="00:00" data-theme="a">
-							
-							<!-- <label for="textarea">Observações:</label>
-							<textarea cols="40" rows="8" name="observacoes" id="observacoes"></textarea> -->
-							
-							<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="inicializarModal()">Cancelar</a>
-							<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="atualizarHora()">Salvar</a>
-						</div>
+					<div data-role="popup" id="purchase-projeto" data-theme="a" data-history = "false"
+						class="ui-corner-all">
+								<div data-role="header" data-theme="a">
+	   								 <p style="text-align: center;">Horas trabalhadas</p>
+								</div>
+								<div role="main" class="ui-content">
+									<h3 id="descricao-projeto"></h3>
+								<input type="hidden" name="codigo_projeto" value="" id="codigo_projeto" />
+								<input type="hidden" name="codigo" value="" id="codigo_hora_projeto" />
+								    <label for="select-operacao">Operação</label>
+									<select name="select-operacao" id="operacao_projeto" required="required">
+										<option value="" selected="selected">Escolha</option>
+										<option value="CORTE">Corte</option>
+										<option value="LAMINACAO">Laminação</option>
+										<option value="FURACAO">Furação</option>
+										<option value="PRE_MONTAGEM">Pré montagem</option>
+										<option value="MONTAGEM">Montagem</option>
+										<option value="PINTURA">Pintura</option>
+										<option value="RETRABALHO">retrabalho</option>
+									</select>
+								<label for="hora_inicial">Hora inicial:</label>
+								<input type="time" required="required" name="hora_inicial" id="hora_inicial_projeto" value="" placeholder="00:00" data-theme="a">
+								
+								<label for="hora_inicial">Hora final:</label>
+								<input type="time" required="required" name="hora_final" id="hora_final_projeto" value="" placeholder="00:00" data-theme="a">
+								
+								<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="inicializarModal()">Cancelar</a>
+								<a class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b ui-btn-icon-left ui-icon-check" data-rel="back" onclick="atualizarHora()">Salvar</a>
+							</div>
+					</div>
 				</div>
 			</div>
 		<div id="barra-footer"  data-role="footer" data-theme="a" data-position="fixed" data-tap-toggle="false">

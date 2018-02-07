@@ -13,6 +13,7 @@ var senha = window.localStorage.getItem('senha');
 var empresa = window.localStorage.getItem('empresa');
 var horasTrabalhadasHj;
 var itensProjeto = new Array();
+var lotesProducao = new Array();
 var alteracaoApontamento = false;
 var horas_salvar="00:00";
 
@@ -147,6 +148,63 @@ function pesquisaProjetos(){
 	});
 }
 
+function pesquisaLotesProducao(){
+	clearUL('lista-lotes');
+	$.ajax({
+		type : "POST",
+		dataType : "json",
+		url : window.localStorage.getItem("serviceUrl") + "/lote/pesquisa",
+		data : {
+			matricula : matricula,
+			senha : senha,
+		},
+		crossDomain : true,
+		success : function(result ) {
+			if (result.erro == 0) {
+				var numeroLotes = result.info.lotes.length;
+				var permissoes = result.info['roles'];
+			    lotes = [];
+				for (var i=0; i < numeroLotes; i++){
+					let descricao = '';
+					let observacao = '';
+					let tempo_total="00:00";
+					let horas_trabalhadas_hoje="00:00";
+					let codigo = result.info.lotes[i].id;
+					
+					if(result.info.lotes[i].descricao != undefined)
+						descricao = truncate(result.info.lotes[i].descricao, 20);
+					if(result.info.lotes[i].observacao != undefined)
+						observacao = truncate(result.info.lotes[i].observacao, 30);
+					if(result.info.lotes[i].tempo_total != undefined && result.info.lotes[i].tempo_total != '')
+						tempo_total = result.info.lotes[i].tempo_total;
+					if(result.info.lotes[i].horas_trabalhadas_hoje != undefined && result.info.lotes[i].horas_trabalhadas_hoje != '')
+						horas_trabalhadas_hoje = result.info.lotes[i].horas_trabalhadas_hoje;
+					
+					lotesProducao.push(result.info.lotes[i]);
+					var strHTML = "<li class='ui-li-has-alt ui-first-child ui-last-child'><a class='ui-btn' href='#'><h2>"+descricao+"</h2>" +
+					"<p><strong>"+observacao+"</strong></p>" +
+					"<p>Horas trabalhadas hoje: "+horas_trabalhadas_hoje+"</p>"+
+					"<p>Total de horas trabalhadas: "+tempo_total+"</p>" +
+					"<a href='#purchase-lote' onclick='atualizaModalHoraLote("+codigo+")' class='ui-btn ui-btn-icon-notext ui-icon-clock ui-btn-b ' value='' href='#' data-theme='b' data-rel='popup' data-position-to='window' " +
+					"data-transition='pop'>Purchase album</a></li>";
+					lotes.push(strHTML);
+				}
+				preencheDados(lotes, "lista-lotes");
+			} else{
+				var html ="<a href='#transitionExample' data-transition='slideup' class='ui-btn ui-corner-all ui-shadow ui-btn-inline' data-rel='popup'>"+result.mensagem+"</a>";
+				$('#lista-lote').html(html);
+			}
+		},
+		error : function(result){
+			$('.gif-load').css('display', 'none');
+			var title ="Ops...";
+			var message = "Ocorreu um erro, por favor tente novamente."
+			var button ="OK";
+			showAlert(title, message, button);
+		}
+	});
+}
+
 function carregaItensProjeto(codigo){
 	alteracaoApontamento = false;
 	clearUL("itens-projeto");
@@ -193,7 +251,7 @@ function carregaItensProjeto(codigo){
 							"<p><strong>"+descricao+"</strong></p>" +
 							"<p>Horas trabalhadas hoje: "+horas_trabalhadas_hoje+"</p>"+
 							"<p>Total de horas trabalhadas: "+tempo_total+"</p>" +
-							"<a href='#purchase' onclick='atualizaModalHora("+codigo+", "+codigoProjeto+")' class='ui-btn ui-btn-icon-notext ui-icon-clock ui-btn-b ' value='"+hora_inicial+"' href='#' data-theme='b' data-rel='popup' data-position-to='window' " +
+							"<a href='#purchase-projeto' onclick='atualizaModalHora("+codigo+", "+codigoProjeto+")' class='ui-btn ui-btn-icon-notext ui-icon-clock ui-btn-b ' value='"+hora_inicial+"' href='#' data-theme='b' data-rel='popup' data-position-to='window' " +
 							"data-transition='pop'>Purchase album</a></li>";
 					itens.push(strHTML);
 				}
@@ -217,28 +275,84 @@ function carregaItensProjeto(codigo){
 }
 
 function atualizaModalHora(codigo, projeto){
-	$("#codigo_projeto").val(projeto);
-	$("#codigo_hora_projeto").val(codigo);
+	var numeroItens = itensProjeto.length;
+	for(i=0;i< numeroItens; i++){
+		if(itensProjeto[i].id == codigo){
+			$("#codigo_projeto").val(projeto);
+			$("#codigo_hora_projeto").val(codigo);
+			$("#descricao-projeto").text(itensProjeto[i].nome);
+		}
+	}
+	
+}
+
+function atualizaModalHoraLote(codigo){
+	var numeroItens = lotesProducao.length;
+	for(i=0;i< numeroItens; i++){
+		if(lotesProducao[i].id == codigo){
+			$("#codigo_lote").val(codigo);
+			$("#descricao-lote").text(lotesProducao[i].descricao);
+		}
+	}
 }
 
 function atualizarHora(){
-	var numeroItens = itensProjeto.length;
-	for(i=0;i< numeroItens; i++){
-		if(itensProjeto[i].id == $('#codigo_hora_projeto').val()){
-			var hora_inicial = $('#hora_inicial').val();
-			var hora_final = $('#hora_final').val();
-			var observacoes = $('#observacoes').val();
-			var codigoProjeto = $("#codigo_projeto").val();
-			
-			itensProjeto[i].hora_inicial = hora_inicial
-			itensProjeto[i].hora_final = hora_final;
-			itensProjeto[i].observacoes = observacoes;
-			salvarApontamento(itensProjeto[i], codigoProjeto);
-			totalHorasTrabalhadas();
-			inicializarModal();
+	var hora_inicial = $('#hora_inicial_projeto').val();
+	var hora_final = $('#hora_final_projeto').val();
+	var observacoes = $('#observacoes').val();
+	var codigoProjeto = $("#codigo_projeto").val();
+	var operacao = $("#operacao_projeto").val();
+	
+	if(operacao == ""){
+		var title ="Atenção";
+		var message = "Favor informar a operação!";
+		var button ="OK";
+		showConfirm(title, message, button, inicializarModal());
+	}else{
+		var numeroItens = itensProjeto.length;
+		for(i=0;i< numeroItens; i++){
+			if(itensProjeto[i].id == $('#codigo_hora_projeto').val()){
+				itensProjeto[i].hora_inicial = hora_inicial
+				itensProjeto[i].hora_final = hora_final;
+				itensProjeto[i].observacoes = observacoes;
+				itensProjeto[i].operacao = operacao;
+				salvarApontamento(itensProjeto[i], codigoProjeto);
+				totalHorasTrabalhadas();
+				inicializarModal();
+			}
 		}
 	}
 	inicializarModal();
+}
+
+function atualizarHoraLote(){
+	var hora_inicial = $('#hora_inicial').val();
+	var hora_final = $('#hora_final').val();
+	var observacoes = $('#observacoes').val();
+	var codigoLote = $("#codigo_lote").val();
+	var operacao = $("#operacao").val();
+	var finalizado = $("#finalizado").val();
+	if(operacao == ""){
+		var title ="Atenção";
+		var message = "Favor informar a operação!";
+		var button ="OK";
+		showConfirm(title, message, button, inicializarModalLote());
+	}else{
+		var numeroItens = lotesProducao.length;
+		for(i=0;i< numeroItens; i++){
+			if(lotesProducao[i].id == $('#codigo_lote').val()){
+				lotesProducao[i].hora_inicial = hora_inicial
+				lotesProducao[i].hora_final = hora_final;
+				lotesProducao[i].observacoes = observacoes;
+				lotesProducao[i].operacao = operacao;
+				lotesProducao[i].finalizado = finalizado;
+				salvarApontamentoLote(lotesProducao[i]);
+				totalHorasTrabalhadas();
+				inicializarModalLote();
+			}
+		}
+	}
+	inicializarModalLote();
 }
 
 function diferencaHora(horaInicial, horaFinal){
@@ -268,16 +382,37 @@ function addZero(i) {
 }
 
 function inicializarModal(){
-	$('#hora_inicial').val("");
-	$('#hora_final').val("");
+	$('#hora_inicial_projeto').val("");
+	$('#hora_final_projeto').val("");
 	$('#codigo_hora_projeto').val("");
 	$('#observacoes').val("");
 	$("#codigo_projeto").val("");
+	// reseta valore do select e slider
+	var myselect = $( "#operacao_projeto" );
+	
+	myselect[0].selectedIndex = 0;
+	myselect.selectmenu( "refresh" );
+}
+
+function inicializarModalLote(){
+	$('#hora_inicial').val("");
+	$('#hora_final').val("");
+	$('#observacoes').val("");
+	$("#codigo_lote").val("");
+	// reseta valore do select e slider
+	var myselect = $( "#operacao" );
+	var myswitch = $( "#finalizado" );
+	
+	myswitch[ 0 ].selectedIndex = 0;
+	myswitch.slider( "refresh" );
+	myselect[0].selectedIndex = 0;
+	myselect.selectmenu( "refresh" );
 }
 
 function cancelarApontamento(){
 		itensProjeto = new Array();
 		inicializarModal();
+		inicializarModalLote();
 		totalHorasTrabalhadas();
 		window.location.href="home.html#page-inicial";
 }
@@ -294,6 +429,7 @@ function salvarApontamento(apontamento, codigoProjeto){
 	let horaInicial = apontamento['hora_inicial'];
 	let horaFinal = apontamento['hora_final'];
 	let observacoes = apontamento['observacoes'];
+	let operacao = apontamento['operacao'];
 	$.ajax({
 		type : "POST",
 		dataType : "json",
@@ -304,7 +440,8 @@ function salvarApontamento(apontamento, codigoProjeto){
 			id,
 			horaInicial,
 			horaFinal,
-			observacoes
+			observacoes,
+			operacao
 		},
 		crossDomain : true,
 		success : function(result ) {
@@ -327,6 +464,54 @@ function salvarApontamento(apontamento, codigoProjeto){
 			showConfirm(title, message, button, carregaItensProjeto(projeto));
 			$('.gif-load').css('display', 'none');
 			$('#itens-projeto').css('display', 'block');
+		}
+	});
+}
+
+function salvarApontamentoLote(lote){
+	lotesProducao = new Array();
+	clearUL("lista-lotes");
+	$('#lista-lotes').css('display', 'none');
+	$('.gif-load').css('display', 'block');
+	
+	let id = lote['id'];
+	let horaInicial = lote['hora_inicial'];
+	let horaFinal = lote['hora_final'];
+	let observacoes = lote['observacoes'];
+	let operacao = lote['operacao'];
+	let finalizado = lote['finalizado'];
+	$.ajax({
+		type : "POST",
+		dataType : "json",
+		url : window.localStorage.getItem("serviceUrl") + "/lote/salvar/apontamento",
+		data : {
+			matricula,
+			senha,
+			id,
+			horaInicial,
+			horaFinal,
+			observacoes,
+			operacao, finalizado
+		},
+		crossDomain : true,
+		success : function(result ) {
+			lotesProducao = new Array();
+			var title ="Info";
+			var message = result.info.msg
+			var button ="OK";
+			showConfirm(title, message, button, pesquisaLotesProducao());
+			$('.gif-load').css('display', 'none');
+			$('#lista-lotes').css('display', 'block');
+		},
+
+		error : function(result){
+			var title ="Ops...";
+			var message = "Ocorreu um erro, o horário informado já pode ter sido lançado. Favor verificar.";
+			var button ="OK";
+			
+			showConfirm(title, message, button, carregaItensProjeto(projeto));
+			$('.gif-load').css('display', 'none');
+			$('#lista-lotes').css('display', 'block');
 		}
 	});
 }
