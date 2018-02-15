@@ -125,8 +125,8 @@ function pesquisaProjetos(){
 				var permissoes = result.info['roles'];
 			    projetos = [];
 				for (var i=0; i < numeroProjetos; i++){
-					let cliente = '';
-					let codigo = result.info.projetos[i].id;
+					var cliente = '';
+					var codigo = result.info.projetos[i].id;
 					if(result.info.projetos[i].cliente != undefined)
 						cliente = truncate(result.info.projetos[i].cliente, 20);
 					var strHTML = "<li><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"</a></li";
@@ -165,11 +165,11 @@ function pesquisaLotesProducao(){
 				var permissoes = result.info['roles'];
 			    lotes = [];
 				for (var i=0; i < numeroLotes; i++){
-					let descricao = '';
-					let observacao = '';
-					let tempo_total="00:00";
-					let horas_trabalhadas_hoje="00:00";
-					let codigo = result.info.lotes[i].id;
+					var descricao = '';
+					var observacao = '';
+					var tempo_total="00:00";
+					var horas_trabalhadas_hoje="00:00";
+					var codigo = result.info.lotes[i].id;
 					
 					if(result.info.lotes[i].descricao != undefined)
 						descricao = truncate(result.info.lotes[i].descricao, 20);
@@ -223,18 +223,18 @@ function carregaItensProjeto(codigo){
 				var numeroItens = result.info.itens.length;
 				var permissoes = result.info['roles'];
 				itens = [];
-				let codigoProjeto = result.info.codigo;
-				let cliente = result.info.cliente;
-				let total_horas_projeto= result.info.total_horas_projeto;
+				var codigoProjeto = result.info.codigo;
+				var cliente = result.info.cliente;
+				var total_horas_projeto= result.info.total_horas_projeto;
 				
 				var infoProjeto ="<p>"+codigo+" - "+cliente+"</p><p>Horas trabalhadas no projeto: "+total_horas_projeto+"</p>"
 				 $('#info-projeto').html(infoProjeto);
 				for (var i=0; i < numeroItens; i++){
-					let nome = '';
-					let descricao = '';
-					let tempo_total="00:00";
-					let horas_trabalhadas_hoje="00:00";
-					let codigo = result.info.itens[i].id;
+					var nome = '';
+					var descricao = '';
+					var tempo_total="00:00";
+					var horas_trabalhadas_hoje="00:00";
+					var codigo = result.info.itens[i].id;
 					
 					if(result.info.itens[i].nome != undefined)
 						nome = truncate(result.info.itens[i].nome, 100);
@@ -414,7 +414,6 @@ function cancelarApontamento(){
 		inicializarModal();
 		inicializarModalLote();
 		totalHorasTrabalhadas();
-		window.location.href="home.html#page-inicial";
 }
 
 function salvarApontamento(apontamento, codigoProjeto){
@@ -423,25 +422,25 @@ function salvarApontamento(apontamento, codigoProjeto){
 	clearUL("itens-projeto");
 	$('#itens-projeto').css('display', 'none');
 	$('.gif-load').css('display', 'block');
-	let projeto = codigoProjeto;
+	var projeto = codigoProjeto;
 	
-	let id = apontamento['id'];
-	let horaInicial = apontamento['hora_inicial'];
-	let horaFinal = apontamento['hora_final'];
-	let observacoes = apontamento['observacoes'];
-	let operacao = apontamento['operacao'];
+	var id = apontamento['id'];
+	var horaInicial = apontamento['hora_inicial'];
+	var horaFinal = apontamento['hora_final'];
+	var observacoes = apontamento['observacoes'];
+	var operacao = apontamento['operacao'];
 	$.ajax({
 		type : "POST",
 		dataType : "json",
 		url : window.localStorage.getItem("serviceUrl") + "/projeto/salvar/apontamento",
 		data : {
-			matricula,
-			senha,
-			id,
-			horaInicial,
-			horaFinal,
-			observacoes,
-			operacao
+			matricula : matricula,
+			senha : senha,
+			id : id,
+			horaInicial : horaInicial,
+			horaFinal : horaFinal,
+			observacoes: observacoes,
+			operacao : operacao,
 		},
 		crossDomain : true,
 		success : function(result ) {
@@ -474,24 +473,25 @@ function salvarApontamentoLote(lote){
 	$('#lista-lotes').css('display', 'none');
 	$('.gif-load').css('display', 'block');
 	
-	let id = lote['id'];
-	let horaInicial = lote['hora_inicial'];
-	let horaFinal = lote['hora_final'];
-	let observacoes = lote['observacoes'];
-	let operacao = lote['operacao'];
-	let finalizado = lote['finalizado'];
+	var id = lote['id'];
+	var horaInicial = lote['hora_inicial'];
+	var horaFinal = lote['hora_final'];
+	var observacoes = lote['observacoes'];
+	var operacao = lote['operacao'];
+	var finalizado = lote['finalizado'];
 	$.ajax({
 		type : "POST",
 		dataType : "json",
 		url : window.localStorage.getItem("serviceUrl") + "/lote/salvar/apontamento",
 		data : {
-			matricula,
-			senha,
-			id,
-			horaInicial,
-			horaFinal,
-			observacoes,
-			operacao, finalizado
+			matricula : matricula,
+			senha : senha,
+			id : id,
+			horaInicial : horaInicial,
+			horaFinal : horaFinal,
+			observacoes: observacoes,
+			operacao : operacao,
+			finalizado : finalizado,
 		},
 		crossDomain : true,
 		success : function(result ) {
