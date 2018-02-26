@@ -127,9 +127,10 @@ function pesquisaProjetos(){
 				for (var i=0; i < numeroProjetos; i++){
 					var cliente = '';
 					var codigo = result.info.projetos[i].id;
+					var manutencao = result.info.projetos[i].manutencao;
 					if(result.info.projetos[i].cliente != undefined)
 						cliente = truncate(result.info.projetos[i].cliente, 20);
-					var strHTML = "<li><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"</a></li";
+					var strHTML = "<li><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"<p>Manutenção: "+manutencao+"</p></a></li";
 					projetos.push(strHTML);
 				}
 				preencheDados(projetos, "lista-projetos");
