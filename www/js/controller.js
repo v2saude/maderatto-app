@@ -13,6 +13,7 @@ var senha = window.localStorage.getItem('senha');
 var empresa = window.localStorage.getItem('empresa');
 var horasTrabalhadasHj;
 var itensProjeto = new Array();
+var itensLote = new Array();
 var lotesProducao = new Array();
 var alteracaoApontamento = false;
 var horas_salvar="00:00";
@@ -81,6 +82,20 @@ function truncate(text, maxlength) {
 	}
 }
 
+function formatarData(date) {
+	if (date != '') {
+		data = date.split("-"); // "2010-01-18"
+		var dia = data[2];
+		var mes = data[1];
+		var ano = data[0];
+		if(data[2].length == 1)
+			dia = "0"+data[2];
+		if(data[1].length == 1)
+			mes = "0"+data[1];
+		return dia + "/" + mes + "/" + ano; // "18/01/2010"
+	}
+}
+
 function totalHorasTrabalhadas(){
 	$.ajax({
 		type : "POST",
@@ -110,6 +125,13 @@ function totalHorasTrabalhadas(){
 
 function pesquisaProjetos(){
 	clearUL('lista-projetos');
+	$( ".btn-pesquisa" ).collapsible( "option", "collapsed", true );
+	var dataInicio = $('#dataInicial').val();
+	var dataFim = $('#dataFinal').val();
+	if(dataInicio != '')
+		dataInicio = new Date(dataInicio).toLocaleString();
+	if(dataFim != '')
+		dataFim = new Date(dataFim).toLocaleString();
 	$.ajax({
 		type : "POST",
 		dataType : "json",
@@ -117,6 +139,9 @@ function pesquisaProjetos(){
 		data : {
 			matricula : matricula,
 			senha : senha,
+			dataInicial : dataInicio,
+			dataFinal : dataFim,
+			isManutencao : false,
 		},
 		crossDomain : true,
 		success : function(result ) {
@@ -149,8 +174,61 @@ function pesquisaProjetos(){
 	});
 }
 
+function pesquisaProjetosManutencao(){
+	clearUL('lista-projetos-manutencao');
+	$( ".btn-pesquisa" ).collapsible( "option", "collapsed", true );
+	var dataInicio = $('#dataInicialManutencao').val();
+	var dataFim = $('#dataFinalManutencao').val();
+	if(dataInicio != '')
+		dataInicio = new Date(dataInicio).toLocaleString();
+	if(dataFim != '')
+		dataFim = new Date(dataFim).toLocaleString();
+	$.ajax({
+		type : "POST",
+		dataType : "json",
+		url : window.localStorage.getItem("serviceUrl") + "/projeto/pesquisa",
+		data : {
+			matricula : matricula,
+			senha : senha,
+			dataInicial : dataInicio,
+			dataFinal : dataFim,
+			isManutencao : true,
+		},
+		crossDomain : true,
+		success : function(result ) {
+			if (result.erro == 0) {
+				var numeroProjetos = result.info.projetos.length;
+				var permissoes = result.info['roles'];
+			    projetos = [];
+				for (var i=0; i < numeroProjetos; i++){
+					var cliente = '';
+					var codigo = result.info.projetos[i].id;
+					var manutencao = result.info.projetos[i].manutencao;
+					if(result.info.projetos[i].cliente != undefined)
+						cliente = truncate(result.info.projetos[i].cliente, 20);
+					var strHTML = "<li><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"<p>Manutenção: "+manutencao+"</p></a></li";
+					projetos.push(strHTML);
+				}
+				preencheDados(projetos, "lista-projetos-manutencao");
+			} else{
+				var html ="<a href='#transitionExample' data-transition='slideup' class='ui-btn ui-corner-all ui-shadow ui-btn-inline' data-rel='popup'>"+result.mensagem+"</a>";
+				$('#lista-projeto').html(html);
+			}
+		},
+		error : function(result){
+			$('.gif-load').css('display', 'none');
+			var title ="Ops...";
+			var message = "Ocorreu um erro, por favor tente novamente."
+			var button ="OK";
+			showAlert(title, message, button);
+		}
+	});
+}
+
+
 function pesquisaLotesProducao(){
 	clearUL('lista-lotes');
+	$( ".btn-pesquisa" ).collapsible( "option", "collapsed", true );
 	$.ajax({
 		type : "POST",
 		dataType : "json",
@@ -182,7 +260,7 @@ function pesquisaLotesProducao(){
 						horas_trabalhadas_hoje = result.info.lotes[i].horas_trabalhadas_hoje;
 					
 					lotesProducao.push(result.info.lotes[i]);
-					var strHTML = "<li class='ui-li-has-alt ui-first-child ui-last-child'><a class='ui-btn' href='#'><h2>"+descricao+"</h2>" +
+					var strHTML = "<li class='ui-li-has-alt ui-first-child ui-last-child'><a class='ui-btn' onclick='carregarItensLote("+codigo+");'><h2>"+descricao+"</h2>" +
 					"<p><strong>"+observacao+"</strong></p>" +
 					"<p>Horas trabalhadas hoje: "+horas_trabalhadas_hoje+"</p>"+
 					"<p>Total de horas trabalhadas: "+tempo_total+"</p>" +
@@ -228,7 +306,7 @@ function carregaItensProjeto(codigo){
 				var cliente = result.info.cliente;
 				var total_horas_projeto= result.info.total_horas_projeto;
 				
-				var infoProjeto ="<p>"+codigo+" - "+cliente+"</p><p>Horas trabalhadas no projeto: "+total_horas_projeto+"</p>"
+				var infoProjeto ="<p>"+codigoProjeto+" - "+cliente+"</p><p>Horas trabalhadas no projeto: "+total_horas_projeto+"</p>"
 				 $('#info-projeto').html(infoProjeto);
 				for (var i=0; i < numeroItens; i++){
 					var nome = '';
@@ -260,6 +338,72 @@ function carregaItensProjeto(codigo){
 				preencheDados(itens, "itens-projeto");
 				totalHorasTrabalhadas();
 				$.mobile.changePage("#page-itens", { transition: "slideup", changeHash: true, reolad :true });
+			} else{
+				var html ="<a href='#transitionExample' data-transition='slideup' class='ui-btn ui-corner-all ui-shadow ui-btn-inline' data-rel='popup'>"+result.mensagem+"</a>";
+				$('#lista-projeto').html(html);
+			}
+		},
+		error : function(result){
+			$('.gif-load').css('display', 'none');
+			var title ="Ops...";
+			var message = "Ocorreu um erro, por favor tente novamente."
+			var button ="OK";
+			showAlert(title, message, button);
+		}
+	});
+}
+
+function carregarItensLote(codigo){
+	$("#itens-lote").empty();
+	$.ajax({
+		type : "POST",
+		dataType : "json",
+		url : window.localStorage.getItem("serviceUrl") + "/projeto/pesquisa/loteitens",
+		data : {
+			matricula : matricula,
+			senha :senha,
+			codigo : codigo,
+		},
+		crossDomain : true,
+		success : function(result ) {
+			if (result.erro == 0) {
+				var numeroItens = result.info.itens.length;
+				var permissoes = result.info['roles'];
+				itens = [];
+				var descricao = result.info.descricao;
+				var observacao = '';
+				if(result.info.observacao != undefined)
+					observacao = result.info.observacao;
+				var operador = result.info.operador;
+				
+				var infoLote ="<p>Descrição: "+descricao+"</p><p>Observação: "+observacao+"</p><p>Operador: "+operador+"</p>"
+				$('#info-lote').html(infoLote);
+				for (var i=0; i < numeroItens; i++){
+					var projeto = '';
+					var produto = '';
+					var quantidade = '';
+					var status = '';
+					var prazo = '';
+					
+					if(result.info.itens[i].projeto != undefined)
+						projeto = truncate(result.info.itens[i].projeto, 100);
+					if(result.info.itens[i].produto != undefined)
+						produto = truncate(result.info.itens[i].produto, 100);
+					if(result.info.itens[i].quantidade != undefined)
+						quantidade = result.info.itens[i].quantidade;
+					if(result.info.itens[i].status != undefined)
+						status = result.info.itens[i].status;
+					if(result.info.itens[i].prazo != undefined)
+						prazo = result.info.itens[i].prazo;
+					
+					itensLote.push(result.info.itens[i]);
+					
+					var strHTML = "<tr><th>"+projeto+"</th><td>"+produto+"</td><td>"+quantidade+"</td>" +
+							"<td>"+status+"</td><td>"+prazo+"</td></tr>";
+					itens.push(strHTML);
+				}
+				preencheDados(itens, "itens-lote");
+				$.mobile.changePage("#page-itens-lote", { transition: "slideup", changeHash: true, reolad :true });
 			} else{
 				var html ="<a href='#transitionExample' data-transition='slideup' class='ui-btn ui-corner-all ui-shadow ui-btn-inline' data-rel='popup'>"+result.mensagem+"</a>";
 				$('#lista-projeto').html(html);
@@ -527,9 +671,9 @@ function clearUL(lista){
 }
 
 function preencheDados(lista, id_lista){
-  for (var i=0; i < lista.length; i++){
-    $('#'+id_lista).append(lista[i]);
-  }
+	for (var i=0; i < lista.length; i++){
+		$('#'+id_lista).append(lista[i]);
+	}
 }
 
 //Beep three times

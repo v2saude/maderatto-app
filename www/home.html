@@ -41,16 +41,43 @@
 			</div>
 			<!-- ********************/header ******************************* -->
 			
-			<div data-role="tabs">
+			<div data-role="tabs" id="tabs">
 				<div data-role="navbar">
 					<ul>
-						<li><a href="#projetos" onclick="pesquisaProjetos();">Projetos</a></li>
-						<li><a href="#lotes" onclick="pesquisaLotesProducao()">Lotes</a></li>
+						<li><a href="#projetos" class="ui-btn-active">Projetos</a></li>
+						<li><a href="#lotes" onclick="pesquisaLotesProducao();">Lotes</a></li>
+						<li><a href="#manutencao" onclick="pesquisaProjetosManutencao();">Manutenção</a></li>
 					</ul>
 				</div>
 
 				<div id="projetos" class="ui-body-d ui-content">
+					<div data-role="collapsible" data-enhanced="true" id="btn-pesquisa"
+					class="ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-collapsed btn-pesquisa">
+					<h4 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+						<a href="#"
+							class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-search">
+							Pesquisar
+							<div class="ui-collapsible-heading-status"></div>
+						</a>
+					</h4>
+					<div id="formulario-pesquisa"
+						class="ui-collapsible-content ui-collapsible-content-collapsed"
+						aria-hidden="true">
+							<form action="post">
+								<label for="dataInicial">Data Inicial</label>
+								<input type="datetime-local" data-clear-btn="true" name="datetime-4" id="dataInicial" value="">
+								<label for="dataFinal">Data Final</label> 
+								<input type="datetime-local" data-clear-btn="true" name="datetime-4" id="dataFinal" value="">
+								<p>
+									<input type="button" value="Pesquisar" onclick="pesquisaProjetos();" />
+								</p>
+							</form>
+						</div>
+					</div>
 					<div class="inicial">
+					<figure class="gif-load" style="display: none;">
+							<img src="img/images/giphy.gif" />
+						</figure>
 						<ul data-role="listview" data-inset="true" id="lista-projetos">
 							
 						</ul>
@@ -62,8 +89,41 @@
 						<figure class="gif-load" style="display: none;">
 							<img src="img/images/giphy.gif" />
 						</figure>
-						<br />
 						<ul data-role="listview" data-inset="true" id="lista-lotes">
+
+						</ul>
+					</div>
+				</div>
+				
+				<div id="manutencao" class="ui-body-d ui-content">
+				<div data-role="collapsible" data-enhanced="true"
+					class="ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-collapsed btn-pesquisa">
+					<h4 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
+						<a href="#"
+							class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-search">
+							Pesquisar
+							<div class="ui-collapsible-heading-status"></div>
+						</a>
+					</h4>
+					<div id="formulario-pesquisa"
+						class="ui-collapsible-content ui-collapsible-content-collapsed"
+						aria-hidden="true">
+						<form action="post">
+							<label for="dataInicial">Data Inicial</label>
+							<input type="datetime-local" data-clear-btn="true" name="datetime-4" id="dataInicialManutencao" value="">
+							<label for="dataFinal">Data Final</label> 
+							<input type="datetime-local" data-clear-btn="true" name="datetime-4" id="dataFinalManutencao" value="">
+							<p>
+								<input type="button" value="Pesquisar" onclick="pesquisaProjetosManutencao();" />
+							</p>
+						</form>
+					</div>
+				</div>
+					<div class="inicial">
+						<figure class="gif-load" style="display: none;">
+							<img src="img/images/giphy.gif" />
+						</figure>
+						<ul data-role="listview" data-inset="true" id="lista-projetos-manutencao">
 
 						</ul>
 					</div>
@@ -186,7 +246,45 @@
 		</div>
 	</div>
 	<!-- ************ fim da pagina de itens ******* -->
-	
+	<!-- *************página com itens do lote ***** -->
+	<div data-role="page" id="page-itens-lote">
+			<!-- ********** Header *************** -->
+			<div data-role="header" data-theme="a" data-position="fixed"
+				class="header-menu" data-tap-toggle="false">
+				<a href="#menu-principal" data-icon="bars" data-iconpos="notext">Menu</a>
+				<div class="info-top">
+					<p><span class="usuarioLogado"></span><br /> <span class="horasTrabalhadas"></span></p>
+				</div>
+			</div>
+			<!-- ********************/header ******************************* -->
+			<div role="main" class="ui-content">
+				<div class="ui-corner-all custom-corners">
+					<div class="ui-bar ui-bar-a">
+						<h3>Itens do lote</h3>
+					</div>
+					<div class="ui-body ui-body-a" id="info-lote">
+					</div>
+				</div>
+				<br />
+				<table data-role="table" id="itens-lote-table" data-mode="reflow" class="movie-list ui-responsive">
+					<thead>
+						<tr class="ui-bar-d">
+							<th>Projeto</th>
+							<th>Produto</th>
+							<th>Qtd</th>
+							<th>Descrição</th>
+							<th>Prazo</th>
+						</tr>
+					</thead>
+					<tbody id="itens-lote">
+					</tbody>
+				</table>
+			</div>
+		<div id="barra-footer"  data-role="footer" data-theme="a" data-position="fixed" data-tap-toggle="false">
+			<a id="btn-voltar" href="#page-inicial"	class="ui-btn ui-corner-all ui-btn-inline ui-mini footer-button-left ui-btn-icon-left ui-icon-arrow-l">Voltar</a>
+		</div>
+	</div>
+	<!-- *************fim da pagina de itens do lote *** -->
 	<!-- *********************MENU ***************** -->
 			<div data-role="panel" id="menu-principal" data-position="left" data-display="reveal" data-theme="a">
 				<div class="ui-panel-inner">
