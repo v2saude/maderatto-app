@@ -128,6 +128,7 @@ function pesquisaProjetos(){
 	$( ".btn-pesquisa" ).collapsible( "option", "collapsed", true );
 	var dataInicio = $('#dataInicial').val();
 	var dataFim = $('#dataFinal').val();
+	var filtroProjeto = $("#filtroProjeto").val();
 	if(dataInicio != '')
 		dataInicio = new Date(dataInicio).toLocaleString();
 	if(dataFim != '')
@@ -139,6 +140,7 @@ function pesquisaProjetos(){
 		data : {
 			matricula : matricula,
 			senha : senha,
+			projeto : filtroProjeto,
 			dataInicial : dataInicio,
 			dataFinal : dataFim,
 			isManutencao : false,
@@ -155,7 +157,13 @@ function pesquisaProjetos(){
 					var manutencao = result.info.projetos[i].manutencao;
 					if(result.info.projetos[i].cliente != undefined)
 						cliente = truncate(result.info.projetos[i].cliente, 20);
-					var strHTML = "<li><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"<p>Manutenção: "+manutencao+"</p></a></li";
+					
+					var classBtn = ''
+					if(i == 0)
+						classBtn = 'ui-first-child';
+					else if(i == numeroProjetos-1)
+						classBtn = 'ui-last-child';
+					var strHTML = "<li class='"+classBtn+"'><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"<p>Manutenção: "+manutencao+"</p></a></li";
 					projetos.push(strHTML);
 				}
 				preencheDados(projetos, "lista-projetos");
@@ -179,6 +187,7 @@ function pesquisaProjetosManutencao(){
 	$( ".btn-pesquisa" ).collapsible( "option", "collapsed", true );
 	var dataInicio = $('#dataInicialManutencao').val();
 	var dataFim = $('#dataFinalManutencao').val();
+	var filtroProjeto = $("#filtroProjetoManutencao").val();
 	if(dataInicio != '')
 		dataInicio = new Date(dataInicio).toLocaleString();
 	if(dataFim != '')
@@ -193,6 +202,7 @@ function pesquisaProjetosManutencao(){
 			dataInicial : dataInicio,
 			dataFinal : dataFim,
 			isManutencao : true,
+			projeto : filtroProjeto,
 		},
 		crossDomain : true,
 		success : function(result ) {
@@ -204,9 +214,16 @@ function pesquisaProjetosManutencao(){
 					var cliente = '';
 					var codigo = result.info.projetos[i].id;
 					var manutencao = result.info.projetos[i].manutencao;
+					
+					var classBtn = ''
+						if(i == 0)
+							classBtn = 'ui-first-child';
+						else if(i == numeroProjetos-1)
+							classBtn = 'ui-last-child';
+					
 					if(result.info.projetos[i].cliente != undefined)
 						cliente = truncate(result.info.projetos[i].cliente, 20);
-					var strHTML = "<li><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"<p>Manutenção: "+manutencao+"</p></a></li";
+					var strHTML = "<li class='"+classBtn+"'><a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r' onclick='carregaItensProjeto("+codigo+")' class='ui-btn ui-shadow ui-corner-all'>"+codigo+" - "+cliente+"<p>Manutenção: "+manutencao+"</p></a></li";
 					projetos.push(strHTML);
 				}
 				preencheDados(projetos, "lista-projetos-manutencao");
@@ -260,7 +277,13 @@ function pesquisaLotesProducao(){
 						horas_trabalhadas_hoje = result.info.lotes[i].horas_trabalhadas_hoje;
 					
 					lotesProducao.push(result.info.lotes[i]);
-					var strHTML = "<li class='ui-li-has-alt ui-first-child ui-last-child'><a class='ui-btn' onclick='carregarItensLote("+codigo+");'><h2>"+descricao+"</h2>" +
+					
+					var classBtn = ''
+					if(i == 0)
+						classBtn = 'ui-first-child';
+					else if(i == numeroLotes-1)
+						classBtn = 'ui-last-child';
+					var strHTML = "<li class='ui-li-has-alt "+classBtn+"'><a class='ui-btn' onclick='carregarItensLote("+codigo+");'><h2>"+descricao+"</h2>" +
 					"<p><strong>"+observacao+"</strong></p>" +
 					"<p>Horas trabalhadas hoje: "+horas_trabalhadas_hoje+"</p>"+
 					"<p>Total de horas trabalhadas: "+tempo_total+"</p>" +
@@ -419,6 +442,98 @@ function carregarItensLote(codigo){
 	});
 }
 
+function carregarExtrato(){
+	$("#extrato-horas").empty();
+	$( ".btn-pesquisa" ).collapsible( "option", "collapsed", true );
+	var dataInicio = $('#dataInicialExtrato').val();
+	var dataFim = $('#dataFinalExtrato').val();
+	if(dataInicio != ''){
+		dataInicio = normalizaData(dataInicio);
+		dataInicio = new Date(dataInicio).toLocaleString();
+	}
+	if(dataFim != ''){
+		dataFim = normalizaData(dataFim);
+		dataFim = new Date(dataFim).toLocaleString();
+	}
+	$.ajax({
+		type : "POST",
+		dataType : "json",
+		url : window.localStorage.getItem("serviceUrl") + "/projeto/extrato",
+		data : {
+			matricula : matricula,
+			senha :senha,
+			dataInicial : dataInicio,
+			dataFinal : dataFim,
+		},
+		crossDomain : true,
+		success : function(result ) {
+			if (result.erro == 0) {
+				var numeroItens = result.info.itens.length;
+				var total_horas= result.info.totalHoras;
+				extrato = [];
+				
+				var strHTML = "<li data-role='list-divider' class='ui-li-divider ui-bar-inherit ui-li-has-count ui-first-child'>Total de horas Trabalhadas<span class='ui-li-count'>"+total_horas+"</span></li>";
+				extrato.push(strHTML);
+				for (var i=0; i < numeroItens; i++){
+					var projeto = '';
+					var item = '';
+					var operacao = '';
+					var horaInicial = '';
+					var horaFinal = '';
+					var tempoTotal = '';
+					var totalHorasHj = '';
+					var data = '';
+					
+					if(result.info.itens[i].projeto != undefined)
+						projeto = truncate(result.info.itens[i].projeto, 100);
+					if(result.info.itens[i].item != undefined)
+						item = truncate(result.info.itens[i].item, 100);
+					if(result.info.itens[i].operacao != undefined)
+						operacao = result.info.itens[i].operacao;
+					if(result.info.itens[i].horaInicial != undefined)
+						horaInicial = result.info.itens[i].horaInicial;
+					if(result.info.itens[i].horaFinal != undefined)
+						horaFinal = result.info.itens[i].horaFinal;
+					if(result.info.itens[i].tempoTotal != undefined)
+						tempoTotal = result.info.itens[i].tempoTotal;
+					if(result.info.itens[i].totalHorasHj != undefined)
+						totalHorasHj = result.info.itens[i].totalHorasHj;
+					if(result.info.itens[i].data != undefined)
+						data = result.info.itens[i].data;
+					
+					extrato.push(result.info.itens[i]);
+					
+					strHTML = "<li class='ui-btn ui-li-static ui-body-inherit ui-li-has-count'>"+
+						"<p><strong>Projeto: "+projeto+"</strong></p>"+
+						"<p><strong>Item: "+item+"</strong></p>"+
+						"<p><strong>Operacao: "+operacao+"</strong></p>"+
+						"<p><strong>Data: "+data+"</strong></p>"+
+						"<p>Horário: "+horaInicial+" - "+horaFinal+"</p>"+
+						"<p><span class='ui-li-count'>"+tempoTotal+"</span></p>";
+					extrato.push(strHTML);
+				}
+				preencheDados(extrato, "extrato-horas");
+			} else{
+				var html ="<a href='#transitionExample' data-transition='slideup' class='ui-btn ui-corner-all ui-shadow ui-btn-inline' data-rel='popup'>"+result.mensagem+"</a>";
+				$('#extrato-horas').html(html);
+			}
+		},
+		error : function(result){
+			$('.gif-load').css('display', 'none');
+			var title ="Ops...";
+			var message = "Ocorreu um erro, por favor tente novamente."
+			var button ="OK";
+			showAlert(title, message, button);
+		}
+	});
+}
+
+function normalizaData(data){
+	var parts = data.split('-');
+	var date = new Date(parts[0], parts[1] - 1, parts[2]); 
+	return date;
+}
+
 function atualizaModalHora(codigo, projeto){
 	var numeroItens = itensProjeto.length;
 	for(i=0;i< numeroItens; i++){
@@ -426,9 +541,9 @@ function atualizaModalHora(codigo, projeto){
 			$("#codigo_projeto").val(projeto);
 			$("#codigo_hora_projeto").val(codigo);
 			$("#descricao-projeto").text(itensProjeto[i].nome);
+			$("#data_instalacao").val(new Date().toISOString().substr(0, 10));
 		}
 	}
-	
 }
 
 function atualizaModalHoraLote(codigo){
@@ -437,6 +552,7 @@ function atualizaModalHoraLote(codigo){
 		if(lotesProducao[i].id == codigo){
 			$("#codigo_lote").val(codigo);
 			$("#descricao-lote").text(lotesProducao[i].descricao);
+			$("#data_instalacao_lote").val(new Date().toISOString().substr(0, 10));
 		}
 	}
 }
@@ -447,6 +563,7 @@ function atualizarHora(){
 	var observacoes = $('#observacoes').val();
 	var codigoProjeto = $("#codigo_projeto").val();
 	var operacao = $("#operacao_projeto").val();
+	var data = $('#data_instalacao').val();
 	
 	if(operacao == ""){
 		var title ="Atenção";
@@ -461,6 +578,7 @@ function atualizarHora(){
 				itensProjeto[i].hora_final = hora_final;
 				itensProjeto[i].observacoes = observacoes;
 				itensProjeto[i].operacao = operacao;
+				itensProjeto[i].data = data;
 				salvarApontamento(itensProjeto[i], codigoProjeto);
 				totalHorasTrabalhadas();
 				inicializarModal();
@@ -477,6 +595,8 @@ function atualizarHoraLote(){
 	var codigoLote = $("#codigo_lote").val();
 	var operacao = $("#operacao").val();
 	var finalizado = $("#finalizado").val();
+	var data = $('#data_instalacao_lote').val();
+	
 	if(operacao == ""){
 		var title ="Atenção";
 		var message = "Favor informar a operação!";
@@ -491,6 +611,7 @@ function atualizarHoraLote(){
 				lotesProducao[i].observacoes = observacoes;
 				lotesProducao[i].operacao = operacao;
 				lotesProducao[i].finalizado = finalizado;
+				lotesProducao[i].data = data;
 				salvarApontamentoLote(lotesProducao[i]);
 				totalHorasTrabalhadas();
 				inicializarModalLote();
@@ -532,6 +653,7 @@ function inicializarModal(){
 	$('#codigo_hora_projeto').val("");
 	$('#observacoes').val("");
 	$("#codigo_projeto").val("");
+	$("#data_instalacao").val("");
 	// reseta valore do select e slider
 	var myselect = $( "#operacao_projeto" );
 	
@@ -544,6 +666,7 @@ function inicializarModalLote(){
 	$('#hora_final').val("");
 	$('#observacoes').val("");
 	$("#codigo_lote").val("");
+	$("#data_instalacao_lote").val("");
 	// reseta valore do select e slider
 	var myselect = $( "#operacao" );
 	var myswitch = $( "#finalizado" );
@@ -574,6 +697,7 @@ function salvarApontamento(apontamento, codigoProjeto){
 	var horaFinal = apontamento['hora_final'];
 	var observacoes = apontamento['observacoes'];
 	var operacao = apontamento['operacao'];
+	var data = apontamento['data'];
 	$.ajax({
 		type : "POST",
 		dataType : "json",
@@ -586,17 +710,18 @@ function salvarApontamento(apontamento, codigoProjeto){
 			horaFinal : horaFinal,
 			observacoes: observacoes,
 			operacao : operacao,
+			data : data,
 		},
 		crossDomain : true,
 		success : function(result ) {
 			$('#btn-voltar').removeClass('ui-state-disabled');
+			$('.gif-load').css('display', 'none');
+			$('#itens-projeto').css('display', 'block');
 			itensProjeto = new Array();
 			var title ="Info";
 			var message = result.info.msg
 			var button ="OK";
 			showConfirm(title, message, button, carregaItensProjeto(projeto));
-			$('.gif-load').css('display', 'none');
-			$('#itens-projeto').css('display', 'block');
 		},
 
 		error : function(result){
@@ -624,6 +749,7 @@ function salvarApontamentoLote(lote){
 	var observacoes = lote['observacoes'];
 	var operacao = lote['operacao'];
 	var finalizado = lote['finalizado'];
+	var data = lote['data'];
 	$.ajax({
 		type : "POST",
 		dataType : "json",
@@ -637,6 +763,7 @@ function salvarApontamentoLote(lote){
 			observacoes: observacoes,
 			operacao : operacao,
 			finalizado : finalizado,
+			data : data,
 		},
 		crossDomain : true,
 		success : function(result ) {

@@ -64,6 +64,8 @@
 						class="ui-collapsible-content ui-collapsible-content-collapsed"
 						aria-hidden="true">
 							<form action="post">
+								<label for="projeto">Projeto</label>
+								<input type="number" data-clear-btn="true" id="filtroProjeto" value="" name="filtroProjeto">
 								<label for="dataInicial">Data Inicial</label>
 								<input type="datetime-local" data-clear-btn="true" name="datetime-4" id="dataInicial" value="">
 								<label for="dataFinal">Data Final</label> 
@@ -109,6 +111,8 @@
 						class="ui-collapsible-content ui-collapsible-content-collapsed"
 						aria-hidden="true">
 						<form action="post">
+							<label for="projeto">Projeto</label>
+							<input type="number" data-clear-btn="true" id="filtroProjetoManutencao" value="" name="filtroProjetoManutencao">
 							<label for="dataInicial">Data Inicial</label>
 							<input type="datetime-local" data-clear-btn="true" name="datetime-4" id="dataInicialManutencao" value="">
 							<label for="dataFinal">Data Final</label> 
@@ -156,15 +160,22 @@
 							<option value="MONTAGEM">Montagem</option>
 							<option value="PINTURA">Pintura</option>
 							<option value="RETRABALHO">retrabalho</option>
-						</select> <label for="hora_inicial">Hora inicial:</label> <input
-							type="time" required="required" name="hora_inicial"
+						</select>
+						
+						<label for="data_instalacao_lote">Data:</label> 
+						<input type="date" required="required" name="data"
+							id="data_instalacao_lote" value="" data-theme="a">
+						
+						<label for="hora_inicial">Hora inicial:</label> 
+						<input type="time" required="required" name="hora_inicial"
 							id="hora_inicial" value="" placeholder="00:00" data-theme="a">
 
-						<label for="hora_inicial">Hora final:</label> <input type="time"
-							required="required" name="hora_final" id="hora_final" value=""
-							placeholder="00:00" data-theme="a"> <label
-							for="finalizado">Finalizado?</label> <select name="finalizado"
-							id="finalizado" data-role="slider" data-mini="true">
+						<label for="hora_inicial">Hora final:</label>
+						<input type="time" required="required" name="hora_final" id="hora_final" value=""
+							placeholder="00:00" data-theme="a">
+							
+						<label for="finalizado">Finalizado?</label> 
+						<select name="finalizado" id="finalizado" data-role="slider" data-mini="true">
 							<option value="false">Não</option>
 							<option value="true">Sim</option>
 						</select> <br /> <a
@@ -228,8 +239,11 @@
 										<option value="MONTAGEM">Montagem</option>
 										<option value="PINTURA">Pintura</option>
 										<option value="RETRABALHO">retrabalho</option>
-									</select>
-								<label for="hora_inicial">Hora inicial:</label>
+									</select> 
+									
+								<label for="data_instalacao">Data:</label> <input type="date"
+								required="required" name="data" id="data_instalacao" value=""
+								data-theme="a"> <label for="hora_inicial">Hora inicial:</label>
 								<input type="time" required="required" name="hora_inicial" id="hora_inicial_projeto" value="" placeholder="00:00" data-theme="a">
 								
 								<label for="hora_inicial">Hora final:</label>
@@ -291,6 +305,7 @@
 					<ul data-role="listview" class="ui-listview-v2saude">
 						<li data-icon="back" data-theme="b"><a href="#" data-rel="close">Fechar</a></li>
 						<li data-icon="home"><a href="index.html" data-ajax="false">Home</a></li>
+						<li data-icon="calendar"><a href="horasTrabalhadas.html" data-ajax="false">Extrato de horas</a></li>
 						<li data-icon="power"><a href="#" onclick="sair();">Sair</a></li>
 					</ul>
 				</div>
